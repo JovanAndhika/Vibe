@@ -92,7 +92,7 @@
 
                 <!-- Password -->
                 <div class="mb-3">
-                    <label class="form-label">Password (admin / user)</label>
+                    <label class="form-label">Password (12345678)</label>
                     <div class="input-group">
                         <button class="btn btn-outline-warning change" type="button">Password</button>
                         <input type="password" class="form-control" placeholder="Password" name="password" required>

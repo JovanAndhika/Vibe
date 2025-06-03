@@ -5,8 +5,12 @@
         "api/index.php": { "runtime": "vercel-php@0.6.0" }
     },
     "routes": [
-        { "src": "/build/(.*)", "dest": "/public/build/" },
-        { "src": "/(.*)", "dest": "/api/index.php" }
+    { "src": "/img/now_playing/(.*)", "dest": "/public/img/now_playing/$1" },
+    { "src": "/img/search/(.*)", "dest": "/public/img/search/$1" },
+    { "src": "/listoficons/(.*)", "dest": "/public/listoficons/$1" },
+    { "src": "/listofsongs/(.*)", "dest": "/public/listofsongs/$1" },
+    { "src": "/build/(.*)", "dest": "/public/build/$1" },
+    { "src": "/(.*)", "dest": "/api/index.php" }
     ],
     "public": true,
     "buildCommand": "vite build",

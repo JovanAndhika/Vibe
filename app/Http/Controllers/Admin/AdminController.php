@@ -34,8 +34,8 @@ class AdminController extends Controller
             'title' => 'required',
             'artist' => 'required',
             'genre' => 'required',
-            'chfile' => 'required|file|max:25000',
-            'icon' => 'image|file|max:25000',
+            'chfile' => 'required|file|max:1500',
+            'icon' => 'image|file|max:1500',
             'release_date' => 'required'
         ]);
 

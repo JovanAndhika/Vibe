@@ -83,7 +83,7 @@ class AdminController extends Controller
 
         // Update file lagu jika di-upload
         if ($request->hasFile('chfile')) {
-            $request->validate(['chfile' => 'file|max:25000']);
+            $request->validate(['chfile' => 'file|max:1500']);
 
             // Hapus file lama (jika ada)
             if ($request->oldsong && File::exists(public_path($request->oldsong))) {
@@ -99,7 +99,7 @@ class AdminController extends Controller
 
         // Update icon jika di-upload
         if ($request->hasFile('icon')) {
-            $request->validate(['icon' => 'image|file|max:25000']);
+            $request->validate(['icon' => 'image|file|max:1500']);
 
             // Hapus icon lama (jika ada)
             if ($request->oldicon && File::exists(public_path($request->oldicon))) {

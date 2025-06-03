@@ -111,7 +111,7 @@ class PlaylistController extends Controller {
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created resource in public.
      */
     public function store(Request $request) {
         $request->validate([
@@ -153,7 +153,7 @@ class PlaylistController extends Controller {
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified resource in public.
      */
     public function update(Request $request, Playlist $playlist) {
         // Validate
@@ -179,7 +179,7 @@ class PlaylistController extends Controller {
 
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified resource from public.
      */
     public function destroy(Playlist $playlist) {
         $playlist->delete();

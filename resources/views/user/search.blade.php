@@ -84,7 +84,7 @@
                                 <tbody class="text-left">
                                     @foreach ($musics as $music)
                                         <tr>
-                                            <th><img src="@if ($music->icon) {{ asset('storage/' . $music->icon) }} @else {{ asset('img/now_playing/empty_icon.jpeg') }} @endif"alt="Artist Photo"
+                                            <th><img src="@if ($music->icon) {{ asset($music->icon) }} @else {{ asset('img/now_playing/empty_icon.jpeg') }} @endif"alt="Artist Photo"
                                                     class="img-fluid rounded-3" style="max-width: 50px; max-height: 50px;">
                                             </th>
                                             <th>{{ $music->title }}</th>

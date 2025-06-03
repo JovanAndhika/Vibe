@@ -34,7 +34,7 @@
                                 <div class="col-xl-4 col-lg-6 d-flex justify-content-center g-5">
                                     <div class="card bg-dark text-white border-secondary" style="min-width: 200px; max-width: 300px; border-radius: 1rem">
                                         {{-- playlist cover --}}
-                                        <img src="@if ($playlist->name == 'liked songs') {{ asset($playlist->first_music_cover) }} @elseif($playlist->first_music_cover != null) {{ asset('storage/' . $playlist->first_music_cover) }} @else {{ asset('img/now_playing/empty_icon.jpeg') }} @endif"
+                                        <img src="@if ($playlist->name == 'liked songs') {{ asset($playlist->first_music_cover) }} @elseif($playlist->first_music_cover != null) {{ asset( $playlist->first_music_cover) }} @else {{ asset('img/now_playing/empty_icon.jpeg') }} @endif"
                                             class="card-img-top" alt="Playlist's Cover" style="border-radius: 1rem 1rem 0 0">
 
                                         <div class="card-body">

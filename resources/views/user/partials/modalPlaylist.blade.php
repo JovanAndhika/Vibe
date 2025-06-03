@@ -237,7 +237,7 @@
                                 src =
                                 "{{ url('img/now_playing/empty_icon.jpeg') }}";
                             else
-                                src = "{{ url('storage/') }}/" + item.icon;
+                                src = item.icon;
 
                             $("#searchMusicCreate").append(
                                 `
@@ -319,7 +319,7 @@
             if (icon == null)
                 src = "{{ url('img/now_playing/empty_icon.jpeg') }}";
             else
-                src = "{{ url('storage/') }}/" + icon;
+                src = icon;
 
             // jika belum ada, maka append ke table
             $("#selectedMusicCreate").append(
@@ -387,7 +387,7 @@
                                 src =
                                 "{{ url('img/now_playing/empty_icon.jpeg') }}";
                             else
-                                src = "{{ url('storage/') }}/" + icon;
+                                src =  icon;
 
                             $("#searchMusicEdit").append(
                                 `
@@ -463,7 +463,7 @@
                         if (item.icon == null)
                             src = "{{ url('img/now_playing/empty_icon.jpeg') }}";
                         else
-                            src = "{{ url('storage/') }}/" + item.icon;
+                            src = item.icon;
 
                         $("#selectedMusicEdit").append(
                             `
@@ -492,7 +492,7 @@
             if (icon == null)
                 src = "{{ url('img/now_playing/empty_icon.jpeg') }}";
             else
-                src = "{{ url('storage/') }}/" + icon;
+                src = icon;
 
             // jika belum ada, maka append ke table
             $("#selectedMusicEdit").append(

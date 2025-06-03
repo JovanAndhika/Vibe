@@ -7,10 +7,9 @@ use App\Models\Music;
 use App\Models\Newgenre;
 use App\Models\Discovery;
 use Illuminate\Http\Request;
-use App\Http\Middleware\Admin;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class AdminController extends Controller
 {
@@ -30,7 +29,7 @@ class AdminController extends Controller
 
     public function store_song(Request $request)
     {
-        // validasi
+        // Validasi input
         $data = $request->validate([
             'title' => 'required',
             'artist' => 'required',
@@ -40,24 +39,28 @@ class AdminController extends Controller
             'release_date' => 'required'
         ]);
 
+        // Simpan chfile ke public/listofsongs/
         if ($request->hasFile('chfile')) {
-            $destinationPath = 'listofsongs';
-            $files = $request->file('chfile'); // will get files
-            $path = $files->store($destinationPath); // store files to destination folder
-            $data['file_path'] = $path;
+            $file = $request->file('chfile');
+            $fileName = uniqid() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('listofsongs'), $fileName);
+            $data['file_path'] = 'listofsongs/' . $fileName;
         }
 
+        // Simpan icon ke public/listoficons/
         if ($request->hasFile('icon')) {
-            $destinationPath = 'listoficons';
-            $files = $request->file('icon'); // will get files
-            $path = $files->store($destinationPath); // store files to destination folder
-            $data['icon'] = $path;
+            $icon = $request->file('icon');
+            $iconName = uniqid() . '_' . $icon->getClientOriginalName();
+            $icon->move(public_path('listoficons'), $iconName);
+            $data['icon'] = 'listoficons/' . $iconName;
         }
 
-        // insert to database
+        // Simpan data ke database
         Music::create($data);
+
         return back()->with('success', 'Song has been added');
     }
+
 
 
     public function edit_song(Music $music)
@@ -66,59 +69,77 @@ class AdminController extends Controller
         return view('adminCRUD.editsong', ['music' => $music, 'newgenres' => $data]);
     }
 
+
+
     public function update_song(Music $music, Request $request)
     {
-        // validasi
+        // Validasi awal
         $data = $request->validate([
             'title' => 'required',
             'artist' => 'required',
             'genre' => 'required',
-            'release_date' => 'required'
+            'release_date' => 'required',
         ]);
 
-        if ($request->file('chfile')) {
-            if ($request->oldsong) {
-                $request->validate(['chfile' => 'required|file|max:25000']);
-                Storage::delete($request->oldsong);
+        // Update file lagu jika di-upload
+        if ($request->hasFile('chfile')) {
+            $request->validate(['chfile' => 'file|max:25000']);
+
+            // Hapus file lama (jika ada)
+            if ($request->oldsong && File::exists(public_path($request->oldsong))) {
+                File::delete(public_path($request->oldsong));
             }
-            $destinationPath = 'listofsongs';
-            $files = $request->file('chfile'); // will get files
-            $path = $files->store($destinationPath); // store files to destination folder
-            $data['file_path'] = $path;
+
+            // Simpan file baru
+            $file = $request->file('chfile');
+            $fileName = uniqid() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('listofsongs'), $fileName);
+            $data['file_path'] = 'listofsongs/' . $fileName;
         }
 
-        // cek apakah ada input icon
-        if ($request->has('icon'))
-        {
-            // cek apakah terjadi perubahan
-            if ($request->oldicon != $request->icon) {
-                $request->validate(['icon' => 'image|file|max:25000']);
-                Storage::delete($request->oldIcon);
-                $destinationPath = 'listoficons';
-                $files = $request->file('icon'); // will get files
-                $path = $files->store($destinationPath); // store files to destination folder
-                $data['icon'] = $path;
+        // Update icon jika di-upload
+        if ($request->hasFile('icon')) {
+            $request->validate(['icon' => 'image|file|max:25000']);
+
+            // Hapus icon lama (jika ada)
+            if ($request->oldicon && File::exists(public_path($request->oldicon))) {
+                File::delete(public_path($request->oldicon));
             }
+
+            // Simpan icon baru
+            $icon = $request->file('icon');
+            $iconName = uniqid() . '_' . $icon->getClientOriginalName();
+            $icon->move(public_path('listoficons'), $iconName);
+            $data['icon'] = 'listoficons/' . $iconName;
         }
 
+        // Update database
         $music->update($data);
-        return redirect(route('admin.edit', ['music' => $music]))->with('success', 'edit confirmed');
+
+        return redirect()->route('admin.edit', ['music' => $music])
+            ->with('success', 'Edit confirmed');
     }
+
 
 
     public function destroy_song(Music $music)
     {
-        if ($music->file_path) {
-            Storage::delete($music->file_path);
+        // Hapus file lagu jika ada
+        if ($music->file_path && File::exists(public_path($music->file_path))) {
+            File::delete(public_path($music->file_path));
         }
 
-        if ($music->icon) {
-            Storage::delete($music->icon);
+        // Hapus icon jika ada
+        if ($music->icon && File::exists(public_path($music->icon))) {
+            File::delete(public_path($music->icon));
         }
 
-        Music::destroy($music->id);
-        return redirect(route('admin.index', ['music' => $music]));
+        // Hapus data dari database
+        $music->delete();
+
+        return redirect()->route('admin.index')->with('success', 'Song has been deleted.');
     }
+
 
     public function view_user()
     {
@@ -197,7 +218,7 @@ class AdminController extends Controller
     {
         $discoveries = Discovery::all();
         $old_category = Discovery::where('id', $music->category_id)->value('disc_category');
-        
+
         return view('adminCRUD.editdiscover', ['music' => $music, 'discoveries' => $discoveries, 'old_category' => $old_category]);
     }
 
@@ -242,7 +263,6 @@ class AdminController extends Controller
             Discovery::create($data);
             return redirect(route('admin.adddiscovery'))->with('successAdd', 'category berhasil ditambah');
         }
-
     }
 
     public function edit_adddiscovery(Discovery $discovery)
@@ -262,7 +282,7 @@ class AdminController extends Controller
     }
 
     public function destroy_adddiscovery(Discovery $discovery)
-    {   
+    {
         $data = Music::where('category_id', $discovery->id)->update(['category_id' => 1]);
         Discovery::destroy($discovery->id);
         return back();

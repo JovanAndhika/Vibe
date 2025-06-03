@@ -15,7 +15,7 @@
                 {{-- Music Cover --}}
                 <div class="row flex-grow-1">
                     <div class="col d-flex align-items-center justify-content-center m-3">
-                        <img src="@if ($music->icon) {{ asset('storage/' . $music->icon) }} @else {{ asset('img/now_playing/empty_icon.jpeg') }} @endif"
+                        <img src="@if ($music->icon) {{ asset($music->icon) }} @else {{ asset('img/now_playing/empty_icon.jpeg') }} @endif"
                             alt="Artist Photo" class="img-fluid rounded-3" style="max-width: 500px; max-height: 500px;">
                     </div>
                 </div>
@@ -42,7 +42,7 @@
 
                         {{-- Audio --}}
                         <audio controls autoplay>
-                            <source src="{{ asset('storage/' . $music->file_path) }}" type="audio/mpeg" id="myAudio">
+                            <source src="{{ asset($music->file_path) }}" type="audio/mpeg" id="myAudio">
                         </audio>
 
                         {{-- Like --}}

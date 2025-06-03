@@ -84,7 +84,7 @@
                     @if($music->icon)
                         {{-- jika ada icon musik --}}
                         <img class="img-fluid img-preview mb-3 col-sm-5 rounded mx-auto" id="img-preview"
-                            src="{{ asset('storage/' . $music->icon) }}" style="display: block">
+                            src="{{ asset($music->icon) }}" style="display: block">
                     @else
                         {{-- jika tidak ada icon musik --}}
                         <img class="img-fluid img-preview mb-3 col-sm-5 rounded mx-auto" id="img-preview"

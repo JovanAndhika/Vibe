@@ -6,6 +6,7 @@
     },
     "routes": [
     { "src": "/img/now_playing/(.*)", "dest": "/public/img/now_playing/$1" },
+    { "src": "/img/(.*)", "dest": "/public/img/$1" },
     { "src": "/img/search/(.*)", "dest": "/public/img/search/$1" },
     { "src": "/listoficons/(.*)", "dest": "/public/listoficons/$1" },
     { "src": "/listofsongs/(.*)", "dest": "/public/listofsongs/$1" },

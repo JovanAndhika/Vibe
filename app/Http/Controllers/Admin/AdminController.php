@@ -34,8 +34,8 @@ class AdminController extends Controller
             'title' => 'required',
             'artist' => 'required',
             'genre' => 'required',
-            'chfile' => 'required|file|mimes:mp3,wav,ogg|max:10000',
-            'icon' => 'nullable|image|file|max:10000',
+            'chfile' => 'required|file|mimes:mp3,wav,ogg|max:1500',
+            'icon' => 'nullable|image|file|max:1500',
             'release_date' => 'required|date',
         ]);
 
@@ -94,7 +94,7 @@ class AdminController extends Controller
 
         // Ganti audio jika ada file baru
         if ($request->hasFile('chfile')) {
-            $request->validate(['chfile' => 'file|mimes:mp3,wav,ogg|max:10000']);
+            $request->validate(['chfile' => 'file|mimes:mp3,wav,ogg|max:1500']);
 
             // Hapus file lama dari Cloudinary
             if ($music->file_public_id) {
@@ -116,7 +116,7 @@ class AdminController extends Controller
 
         // Ganti icon jika ada file baru
         if ($request->hasFile('icon')) {
-            $request->validate(['icon' => 'image|file|max:10000']);
+            $request->validate(['icon' => 'image|file|max:1500']);
 
             // Hapus icon lama
             if ($music->icon_public_id) {

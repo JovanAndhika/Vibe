@@ -9,7 +9,7 @@ use App\Models\Discovery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\File;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class AdminController extends Controller
 {
@@ -27,39 +27,51 @@ class AdminController extends Controller
         return view('adminCRUD.addsong', ['newgenres' => $data]);
     }
 
+
     public function store_song(Request $request)
     {
-        // Validasi input
         $data = $request->validate([
             'title' => 'required',
             'artist' => 'required',
             'genre' => 'required',
-            'chfile' => 'required|file|max:1500',
-            'icon' => 'image|file|max:1500',
-            'release_date' => 'required'
+            'chfile' => 'required|file|mimes:mp3,wav,ogg|max:10000',
+            'icon' => 'nullable|image|file|max:10000',
+            'release_date' => 'required|date',
         ]);
 
-        // Simpan chfile ke public/listofsongs/
+        // Upload audio ke Cloudinary
         if ($request->hasFile('chfile')) {
-            $file = $request->file('chfile');
-            $fileName = uniqid() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('listofsongs'), $fileName);
-            $data['file_path'] = 'listofsongs/' . $fileName;
+            $uploadAudio = Cloudinary::upload(
+                $request->file('chfile')->getRealPath(),
+                [
+                    'resource_type' => 'auto',
+                    'folder' => 'songs/audio',
+                ]
+            );
+
+            $data['file_path'] = $uploadAudio->getSecurePath();     // URL
+            $data['file_public_id'] = $uploadAudio->getPublicId();  // ID untuk penghapusan
         }
 
-        // Simpan icon ke public/listoficons/
+        // Upload icon ke Cloudinary
         if ($request->hasFile('icon')) {
-            $icon = $request->file('icon');
-            $iconName = uniqid() . '_' . $icon->getClientOriginalName();
-            $icon->move(public_path('listoficons'), $iconName);
-            $data['icon'] = 'listoficons/' . $iconName;
+            $uploadIcon = Cloudinary::upload(
+                $request->file('icon')->getRealPath(),
+                [
+                    'folder' => 'songs/icons',
+                ]
+            );
+
+            $data['icon'] = $uploadIcon->getSecurePath();            // URL
+            $data['icon_public_id'] = $uploadIcon->getPublicId();    // ID
         }
 
-        // Simpan data ke database
+        // Simpan ke database
         Music::create($data);
 
         return back()->with('success', 'Song has been added');
     }
+
 
 
 
@@ -73,47 +85,57 @@ class AdminController extends Controller
 
     public function update_song(Music $music, Request $request)
     {
-        // Validasi awal
         $data = $request->validate([
             'title' => 'required',
             'artist' => 'required',
             'genre' => 'required',
-            'release_date' => 'required',
+            'release_date' => 'required|date',
         ]);
 
-        // Update file lagu jika di-upload
+        // Ganti audio jika ada file baru
         if ($request->hasFile('chfile')) {
-            $request->validate(['chfile' => 'file|max:1500']);
+            $request->validate(['chfile' => 'file|mimes:mp3,wav,ogg|max:10000']);
 
-            // Hapus file lama (jika ada)
-            if ($request->oldsong && File::exists(public_path($request->oldsong))) {
-                File::delete(public_path($request->oldsong));
+            // Hapus file lama dari Cloudinary
+            if ($music->file_public_id) {
+                Cloudinary::destroy($music->file_public_id, ['resource_type' => 'video']);
             }
 
-            // Simpan file baru
-            $file = $request->file('chfile');
-            $fileName = uniqid() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('listofsongs'), $fileName);
-            $data['file_path'] = 'listofsongs/' . $fileName;
+            // Upload file baru
+            $uploadAudio = Cloudinary::upload(
+                $request->file('chfile')->getRealPath(),
+                [
+                    'resource_type' => 'auto',
+                    'folder' => 'songs/audio',
+                ]
+            );
+
+            $data['file_path'] = $uploadAudio->getSecurePath();
+            $data['file_public_id'] = $uploadAudio->getPublicId();
         }
 
-        // Update icon jika di-upload
+        // Ganti icon jika ada file baru
         if ($request->hasFile('icon')) {
-            $request->validate(['icon' => 'image|file|max:1500']);
+            $request->validate(['icon' => 'image|file|max:10000']);
 
-            // Hapus icon lama (jika ada)
-            if ($request->oldicon && File::exists(public_path($request->oldicon))) {
-                File::delete(public_path($request->oldicon));
+            // Hapus icon lama
+            if ($music->icon_public_id) {
+                Cloudinary::destroy($music->icon_public_id);
             }
 
-            // Simpan icon baru
-            $icon = $request->file('icon');
-            $iconName = uniqid() . '_' . $icon->getClientOriginalName();
-            $icon->move(public_path('listoficons'), $iconName);
-            $data['icon'] = 'listoficons/' . $iconName;
+            // Upload icon baru
+            $uploadIcon = Cloudinary::upload(
+                $request->file('icon')->getRealPath(),
+                [
+                    'folder' => 'songs/icons',
+                ]
+            );
+
+            $data['icon'] = $uploadIcon->getSecurePath();
+            $data['icon_public_id'] = $uploadIcon->getPublicId();
         }
 
-        // Update database
+        // Update ke database
         $music->update($data);
 
         return redirect()->route('admin.edit', ['music' => $music])
@@ -121,17 +143,16 @@ class AdminController extends Controller
     }
 
 
-
     public function destroy_song(Music $music)
     {
-        // Hapus file lagu jika ada
-        if ($music->file_path && File::exists(public_path($music->file_path))) {
-            File::delete(public_path($music->file_path));
+        // Hapus audio dari Cloudinary jika ada
+        if ($music->file_public_id) {
+            Cloudinary::destroy($music->file_public_id, ['resource_type' => 'video']); // audio dianggap video oleh Cloudinary
         }
 
-        // Hapus icon jika ada
-        if ($music->icon && File::exists(public_path($music->icon))) {
-            File::delete(public_path($music->icon));
+        // Hapus icon dari Cloudinary jika ada
+        if ($music->icon_public_id) {
+            Cloudinary::destroy($music->icon_public_id); // default: image
         }
 
         // Hapus data dari database
@@ -139,6 +160,7 @@ class AdminController extends Controller
 
         return redirect()->route('admin.index')->with('success', 'Song has been deleted.');
     }
+
 
 
     public function view_user()

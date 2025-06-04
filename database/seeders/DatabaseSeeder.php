@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
         User::create([
             'username' => 'admin',
             'email' => 'admin@gmail.com',
-            'password' => bcrypt('password'),
+            'password' => bcrypt('12345678'),
             'is_admin' => true,
             'date_of_birth' => '2000-01-01'
         ]);
@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
         User::create([
             'username' => 'user',
             'email' => 'user@gmail.com',
-            'password' => bcrypt('password'),
+            'password' => bcrypt('12345678'),
             'is_admin' => false,
             'date_of_birth' => '2000-01-01'
         ]);

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Music extends Model
 {
     use HasFactory;
+    protected $table = 'music';
     protected $fillable = [
         'title',
         'artist',
@@ -15,7 +16,9 @@ class Music extends Model
         'file_path',
         'icon',
         'release_date',
-        'category_id'
+        'category_id',
+        'file_public_id',
+        'icon_public_id',
     ];
     public $timestamps = false;
     
